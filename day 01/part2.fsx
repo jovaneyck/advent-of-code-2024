@@ -19,13 +19,12 @@ let lists : int list list =
     input
     |> List.map (fun line -> line.Split("   ") |> Seq.map int |> Seq.toList)
     |> List.transpose
-    |> List.map List.sort
   
-let distances =
-    List.zip lists.[0] lists.[1]
-    |> List.map (fun (a,b) -> abs(a - b))
-    
-let result = distances |> List.sum
+let [first;second] = lists
+
+[ for element in first -> (element, second |> List.filter (fun x -> x = element) |> List.length) ]
+|> List.map (fun (a,b) -> a*b)
+|> List.sum 
 
 let run () =
     printf "Testing.."
