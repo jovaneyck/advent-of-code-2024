@@ -14,17 +14,17 @@ let example =
 3   3""".Split("\n")
     |> Array.map (fun s -> s.Trim())
     |> List.ofSeq
-   
-let lists : int list list = 
-    input
+
+let parse (lines : string list) =
+    lines
     |> List.map (fun line -> line.Split("   ") |> Seq.map int |> Seq.toList)
     |> List.transpose
-  
-let [first;second] = lists
 
-[ for element in first -> (element, second |> List.filter (fun x -> x = element) |> List.length) ]
-|> List.map (fun (a,b) -> a*b)
-|> List.sum 
+let [first;second] = parse input
+let numberCounts = second |> List.countBy id |> Map.ofList
+
+let counts = [ for element in first -> (element, numberCounts |> Map.tryFind element |> Option.defaultValue 0) ]
+let result = counts |> List.map (fun (a,b) -> a*b) |> List.sum
 
 let run () =
     printf "Testing.."

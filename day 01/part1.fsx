@@ -14,18 +14,20 @@ let example =
 3   3""".Split("\n")
     |> Array.map (fun s -> s.Trim())
     |> List.ofSeq
-   
-let lists : int list list = 
-    input
+
+let parse (lines : string list) =
+    lines
     |> List.map (fun line -> line.Split("   ") |> Seq.map int |> Seq.toList)
     |> List.transpose
-    |> List.map List.sort
-  
-let distances =
-    List.zip lists[0] lists[1]
-    |> List.map (fun (a,b) -> abs(a - b))
-    
-let result = distances |> List.sum
+
+let [first;second] = parse input
+let sortedFirst = first |> List.sort
+let sortedSecond = second |> List.sort
+
+List.zip sortedFirst sortedSecond
+|> List.map (fun (x,y) -> abs (x - y))
+|> List.sum
+
 
 let run () =
     printf "Testing.."
