@@ -22,7 +22,7 @@ let lists : int list list =
     |> List.map List.sort
   
 let distances =
-    List.zip lists.[0] lists.[1]
+    List.zip lists[0] lists[1]
     |> List.map (fun (a,b) -> abs(a - b))
     
 let result = distances |> List.sum
