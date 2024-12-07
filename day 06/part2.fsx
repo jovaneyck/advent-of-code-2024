@@ -24,15 +24,15 @@ let maxRow = (grid |> Seq.length) - 1
 let maxColumn = (grid[0] |> Seq.length) - 1
 
 let obstacles = 
-    [ for (rowNumber, row) in grid |> Seq.indexed do
-          for (columnNumber, cell) in row |> Seq.indexed do
+    [ for rowNumber, row in grid |> Seq.indexed do
+          for columnNumber, cell in row |> Seq.indexed do
               if cell = '#' then yield (rowNumber, columnNumber)
     ]
     |> Set.ofSeq
  
 let guard = 
-    [ for (rowNumber, row) in grid |> Seq.indexed do
-          for (columnNumber, cell) in row |> Seq.indexed do
+    [ for rowNumber, row in grid |> Seq.indexed do
+          for columnNumber, cell in row |> Seq.indexed do
               if cell = '^' then yield (rowNumber, columnNumber)
     ] |> List.head
 
@@ -53,7 +53,7 @@ let turnRight =
 
 let next obstacles ({ Location = (r,c); Direction = dir } as guard) =
     let inFront =
-        let (dr, dc) = 
+        let dr, dc = 
             match dir with
             | U -> (-1,0)
             | D -> (1,0)
