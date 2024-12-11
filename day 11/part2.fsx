@@ -7,7 +7,7 @@ open Swensen.Unquote
 
 type Number = Number of uint64
 type Count = Count of uint64
-type Counter = Map<Number, Count>
+type Counter = (Number * Count) list
 
 module Counter =
     let init = Map.empty
@@ -18,19 +18,17 @@ module Counter =
         |> List.map (fun (Number n, occs) ->
             (Number n,
              (occs |> Seq.map snd |> Seq.map (fun (Count c) -> uint64 c) |> Seq.reduce (+)) |> Count))
-        |> Map.ofSeq
         
     let fromList list : Counter =
         list
         |> List.groupBy id
         |> List.map (fun (nb, occs) -> (nb, occs |> Seq.length))
         |> List.map (fun (n,c) -> Number n, Count (uint64 c))
-        |> Map.ofList
         
-    let toList (counter : Counter) = counter |> Map.toList
+    let toList (counter : Counter) = counter
     
     let total (counter : Counter) =
-        counter |> Map.values |> Seq.sumBy (fun (Count c) -> c)
+        counter |> Seq.sumBy (snd >>(fun (Count c) -> c))
         
     let collect f (counter : Counter) =
         counter
@@ -49,20 +47,27 @@ let parse (input : string) =
     |> Seq.map uint64
     |> Seq.toList
 
+let (|Zero|_|) stone : unit option =
+    if stone = 0UL then Some () else None
+let (|EvenNumberDigits|_|) stone : uint64 list option =
+    let len = stone |> string |> String.length
+    let (q,r) = (len/2,len%2)
+    if r = 0
+    then
+        let o = pown 10 q |> uint64
+        Some [stone/o; stone%o]
+    else None
+ 
 let applyRuleTo stone =
     (*
         If the stone is engraved with the number 0, it is replaced by a stone engraved with the number 1.
         If the stone is engraved with a number that has an even number of digits, it is replaced by two stones. The left half of the digits are engraved on the new left stone, and the right half of the digits are engraved on the new right stone. (The new numbers don't keep extra leading zeroes: 1000 would become stones 10 and 0.)
         If none of the other rules apply, the stone is replaced by a new stone; the old stone's number multiplied by 2024 is engraved on the new stone.
     *)
-    if stone = 0UL then [1UL]
-    else
-        let asString = stone |> string
-        if asString.Length % 2 = 0
-        then
-            asString |> Seq.splitInto 2 |> Seq.map (Seq.map string >> String.concat "") |> Seq.map uint64 |> Seq.toList
-        else
-            [stone * 2024UL]
+    match stone with
+    | Zero -> [1UL]
+    | EvenNumberDigits split -> split
+    | _ -> [stone * 2024UL]        
 
 let blink (stones : Counter) : Counter =
     stones |> Counter.collect applyRuleTo
@@ -84,7 +89,7 @@ let result = blinked |> Counter.total
 
 let run () =
     printf "Testing.."
-    test <@ 1 + 1 = 2 @>
+    test <@ example |> parse |> Counter.fromList |> repeat 75 |> Counter.total = 65601038650482UL @>
     printfn "...done!"
 
 run ()
