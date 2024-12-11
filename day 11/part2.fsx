@@ -12,14 +12,6 @@ type Counter = Map<Number, Count>
 module Counter =
     let init = Map.empty
     
-    let fromList list : Counter =
-        list
-        |> List.groupBy id
-        |> List.map (fun (nb, occs) -> (nb, occs |> Seq.length))
-        |> List.map (fun (n,c) -> Number n, Count (uint64 c))
-        |> Map.ofList
-        
-    
     let fromTuples tuples : Counter =
         tuples
         |> List.groupBy fst
@@ -28,10 +20,23 @@ module Counter =
              (occs |> Seq.map snd |> Seq.map (fun (Count c) -> uint64 c) |> Seq.reduce (+)) |> Count))
         |> Map.ofSeq
         
+    let fromList list : Counter =
+        list
+        |> List.groupBy id
+        |> List.map (fun (nb, occs) -> (nb, occs |> Seq.length))
+        |> List.map (fun (n,c) -> Number n, Count (uint64 c))
+        |> Map.ofList
+        
     let toList (counter : Counter) = counter |> Map.toList
     
     let total (counter : Counter) =
         counter |> Map.values |> Seq.sumBy (fun (Count c) -> c)
+        
+    let collect f (counter : Counter) =
+        counter
+        |> toList
+        |> List.collect (fun (Number n,c) -> f n |> List.map (fun n -> (Number n, c)))
+        |> fromTuples
 
 let input =
     System.IO.File.ReadAllText $"""{__SOURCE_DIRECTORY__}\input.txt"""
@@ -60,12 +65,7 @@ let applyRuleTo stone =
             [stone * 2024UL]
 
 let blink (stones : Counter) : Counter =
-    stones
-    |> Counter.toList
-    |> List.collect (fun (Number n, Count c) ->
-        let numbers = applyRuleTo n
-        numbers |> List.map (fun n -> (Number n, Count c)))
-    |> Counter.fromTuples
+    stones |> Counter.collect applyRuleTo
   
 let rec repeat n acc =
     // printfn $"Iteration %d{n}"
