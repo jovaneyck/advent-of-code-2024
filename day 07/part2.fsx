@@ -35,7 +35,7 @@ let rec combinations nb =
             yield! tail |> Seq.map (fun t -> Multiply :: t)
             yield! tail |> Seq.map (fun t -> Concat :: t)
     }
-    
+
 let apply x y =
     function
     | Add -> x + y
@@ -57,6 +57,7 @@ let couldBeTrue (result, operands) =
     
 let parsed = input |> List.map parseLine
 
+//#time //Real: 00:00:06.840, CPU: 00:00:08.078, GC gen0: 626, gen1: 1, gen2: 1
 let result = 
     parsed
     |> List.filter couldBeTrue
