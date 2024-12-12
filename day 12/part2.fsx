@@ -72,11 +72,39 @@ let perimeter region =
     |> Seq.map (fun (location, nbNeighbours) -> (location, 4 - nbNeighbours))
     |> Seq.sumBy snd
 
+//For bulk discounts we need to count the number of sides instead of the total perimeter
+//Number of sides == number of "corners" on a region's perimeter
+let nbCorners region location =
+    let exists loc = region |> Seq.contains loc
+    let r,c = location
+    
+    [//outer corners
+        // upper right
+        if (r,c+1) |> exists |> not && (r-1, c) |> exists |> not then 1 else 0
+        // lower right
+        if (r,c+1) |> exists |> not && (r+1, c) |> exists |> not then 1 else 0
+        //upper left
+        if (r,c-1) |> exists |> not && (r-1, c) |> exists |> not then 1 else 0
+        //lower left
+        if (r,c-1) |> exists |> not && (r+1, c) |> exists |> not then 1 else 0
+     //inner corners
+        if (r,c+1) |> exists && (r+1,c) |> exists && (r+1,c+1) |> exists |> not then 1 else 0 
+        if (r,c-1) |> exists && (r+1,c) |> exists && (r+1,c-1) |> exists |> not then 1 else 0
+        if (r,c+1) |> exists && (r-1,c) |> exists && (r-1,c+1) |> exists |> not then 1 else 0 
+        if (r,c-1) |> exists && (r-1,c) |> exists && (r-1,c-1) |> exists |> not then 1 else 0 
+    ]
+    |> List.sum
+   
+let nbSides region = 
+    region
+    |> List.map (nbCorners region)
+    |> List.sum
+
 let result = 
     regionsByPlants
     |> List.map snd
     |> List.collect id
-    |> List.sumBy (fun region -> (area region) * (perimeter region))
+    |> List.sumBy (fun region -> (area region) * (nbSides region))
 
 let run () =
     printf "Testing.."
@@ -86,6 +114,10 @@ let run () =
     test <@ nextToEachOther (0,0) (0,-1) @>
     test <@ nextToEachOther (0,0) (1,1) |> not @>
     test <@ nextToEachOther (0,4) (6,3) |> not @>
+    
+    let e_example = [(0, 0); (0, 1); (1, 0); (0, 2); (2, 0); (0, 3); (2, 1); (3, 0); (0, 4); (2, 2); (4, 0); (2, 3); (4, 1); (2, 4); (4, 2); (4, 3); (4, 4)]
+    test <@ nbSides e_example = 12 @>
+
     printfn "...done!"
 
 run ()

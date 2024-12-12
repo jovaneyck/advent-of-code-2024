@@ -5,8 +5,10 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e8018378-f6da-4f75-bf76-516230fe2f9f" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/day 12/part2.fsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/day 11/part2.fsx" beforeDir="false" afterPath="$PROJECT_DIR$/day 11/part2.fsx" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/day 12/input.txt" beforeDir="false" afterPath="$PROJECT_DIR$/day 12/input.txt" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/day 12/part1.fsx" beforeDir="false" afterPath="$PROJECT_DIR$/day 12/part1.fsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -34,6 +36,9 @@
   &quot;associatedIndex&quot;: 7
 }</component>
   <component name="ProjectId" id="2q4NHJjhRhNppvNWhzkYg0HdenX" />
+  <component name="ProjectLevelVcsManager">
+    <ConfirmationsSetting value="2" id="Add" />
+  </component>
   <component name="ProjectViewState">
     <option name="hideEmptyMiddlePackages" value="true" />
     <option name="showLibraryContents" value="true" />
