@@ -1,7 +1,7 @@
 //For part 2:
 //1. we note that order of the elements does not matter
 //2. we note that there's a lot of "duplicate" numbers in the 75 rounds of blinking
-//Approach: put every number in a Counter and keep track of the number of times it occurs and "blink" over that Counter!
+//Approach: put every distinct number in a Counter and keep track of the number of times it occurs and "blink" over that data structure
 #r "nuget: Unquote"
 open Swensen.Unquote
 
@@ -71,25 +71,19 @@ let applyRuleTo stone =
 
 let blink (stones : Counter) : Counter =
     stones |> Counter.collect applyRuleTo
-  
-let rec repeat n acc =
-    // printfn $"Iteration %d{n}"
-    if n = 0
-    then acc
-    else
-        repeat (n - 1) (blink acc)
-   
-let stones = input |> parse |> Counter.fromList
+    
+let blinks (stones : Counter) =
+    Seq.unfold (fun stones -> Some (stones,blink stones)) stones 
 
 // #time
 // Real: 00:00:00.209, CPU: 00:00:00.296, GC gen0: 2, gen1: 1, gen2: 0
-
-let blinked = stones |> repeat 75
+let stones = input |> parse |> Counter.fromList
+let blinked = stones |> blinks |> Seq.item 75
 let result = blinked |> Counter.total
 
 let run () =
     printf "Testing.."
-    test <@ example |> parse |> Counter.fromList |> repeat 75 |> Counter.total = 65601038650482UL @>
+    test <@ example |> parse |> Counter.fromList |> blinks |> Seq.item 75 |> Counter.total = 65601038650482UL @>
     printfn "...done!"
 
 run ()
