@@ -207,17 +207,15 @@ let tryPush state location command =
         | R -> tryPushRight state location
         | D -> tryPushDown state location
         | U -> tryPushUp state location
-    // printfn $"Processing push {command}.."
+        
     match updates with
     | None -> state
     | Some updates ->
-        // printfn $"We have {updates.Length} updates: {updates}"
-        let updatedGrid = applyUpdates state.Grid (updates|> List.rev) //much important, start updating from the "far end"
+        let updatedGrid = applyUpdates state.Grid updates
         { state with Robot = location; Grid = updatedGrid }
     
 
 let apply state command =
-    // printfn $"Processing command {command} at {state.Robot}.."
     let next = state.Robot |> move command
     let atNext = state.Grid |> at next
     
