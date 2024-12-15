@@ -43,12 +43,12 @@ let parse machine =
     let mA = regA.Match(a)
     let mB = regB.Match(b)
     let mP = regPrize.Match(prize)
-    let xA = int mA.Groups[1].Value
-    let yA = int mA.Groups[2].Value
-    let xB = int mB.Groups[1].Value
-    let yB = int mB.Groups[2].Value
-    let xP = int mP.Groups[1].Value
-    let yP = int mP.Groups[2].Value
+    let xA = decimal mA.Groups[1].Value
+    let yA = decimal mA.Groups[2].Value
+    let xB = decimal mB.Groups[1].Value
+    let yB = decimal mB.Groups[2].Value
+    let xP = 10000000000000m + decimal mP.Groups[1].Value
+    let yP = 10000000000000m + decimal mP.Groups[2].Value
     (xA,xB,xP),(yA,yB,yP)
 
 let parseMachines (input : string) =
@@ -58,18 +58,15 @@ let parseMachines (input : string) =
 
 let solve machine =
     let ((A,B,C),(D,E,F)) = machine
-    let a = (decimal ((B * F) - (C * E))) / (decimal ((B*D) - (A*E)))
-    if a <> round a then
-        None
-    else
-        let intA = int a
-        let b = (C - A*intA) / B
-        
-        Some (intA,b)
+    let a = ((B * F) - (C * E)) / ((B*D) - (A*E))
+    let b = (C - A*a) / B
+    if a % 1m = 0m && b % 1m = 0m
+    then Some (a,b)
+    else None
 
 let machines = parseMachines input
 let solutions = machines |> List.choose solve
-let result = solutions |> List.sumBy (fun (a,b) -> 3*a + b)
+let result = solutions |> List.sumBy (fun (a,b) -> 3m*a + b)
 
 let run () =
     printf "Testing.."
