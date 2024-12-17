@@ -65,13 +65,19 @@ let render iteration locations =
 
     bmp.Save($"c:\\tmp\\tree-{iteration}.png", System.Drawing.Imaging.ImageFormat.Png)
 
+//png uses compression, "regular" images can be compressed tighter than "random noise". I generate a png for every iteration and look for the smallest filesize.
 let mutable i = 0
-while true do
+while i < 10_000 do
     i <- i + 1
     printfn "Iteration %d" i
     robots
     |> List.map (finalLocation i)
     |> render i
+
+System.IO.DirectoryInfo("c:\\tmp\\").EnumerateFiles()
+|> Seq.sortBy (fun file -> file.Length)
+|> Seq.map _.Name
+|> Seq.head
 
 let run () =
     printf "Testing.."
