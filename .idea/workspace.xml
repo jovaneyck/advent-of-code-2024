@@ -5,8 +5,8 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="e8018378-f6da-4f75-bf76-516230fe2f9f" name="Changes" comment="">
+      <change afterPath="$PROJECT_DIR$/day 17/part2.fsx" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/day 14/part2.fsx" beforeDir="false" afterPath="$PROJECT_DIR$/day 14/part2.fsx" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -66,7 +66,9 @@
       <workItem from="1733917803597" duration="32000" />
       <workItem from="1733927851994" duration="1620000" />
       <workItem from="1734182738128" duration="20705000" />
-      <workItem from="1734426758765" duration="310000" />
+      <workItem from="1734426758765" duration="1370000" />
+      <workItem from="1734429512148" duration="1807000" />
+      <workItem from="1734432414589" duration="13880000" />
     </task>
     <task id="LOCAL-00001" summary="day 15. Wow">
       <option name="closed" value="true" />
@@ -88,25 +90,5 @@
     <option name="CLEAR_INITIAL_COMMIT_MESSAGE" value="true" />
     <MESSAGE value="day 15. Wow" />
     <option name="LAST_COMMIT_MESSAGE" value="day 15. Wow" />
-  </component>
-  <component name="XDebuggerManager">
-    <breakpoint-manager>
-      <breakpoints>
-        <line-breakpoint enabled="true" type="DotNet Breakpoints">
-          <url>file://$PROJECT_DIR$/day 14/part2.fsx</url>
-          <line>76</line>
-          <properties documentPath="C:\projects\advent-of-code-2024\day 14\part2.fsx" containingFunctionPresentation="" isMultiMethodBreakpoint="true">
-            <option name="multiMethodBreakpoint" value="true" />
-            <startOffsets>
-              <option value="2130" />
-            </startOffsets>
-            <endOffsets>
-              <option value="2183" />
-            </endOffsets>
-          </properties>
-          <option name="timeStamp" value="1" />
-        </line-breakpoint>
-      </breakpoints>
-    </breakpoint-manager>
   </component>
 </project>
