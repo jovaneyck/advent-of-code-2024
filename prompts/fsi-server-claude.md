@@ -18,7 +18,11 @@ When executing F# code, follow this dual-action workflow:
 curl -X POST 'http://G1SGSG3.mshome.net:8080/send?source=claude' -d $'YOUR_FSHARP_CODE;;'
 ```
 Note: Include `;;` for FSI execution.
-**IMPORTANT**: Always use `$'...'` syntax and escape F# pipe operators as `\u007C>` (Unicode escape) to prevent shell interpretation. The shell will otherwise interpret `|>` as shell pipe operators causing syntax errors in FSI.
+**IMPORTANT**: Always use `$'...'` syntax and escape ALL pipe characters as `\u007C` (Unicode escape) to prevent shell interpretation. This includes:
+- Pipe operators: `\u007C>` 
+- Pattern matching: `\u007C 0 \u007C 1 \u007C 2`
+- Any other usage of `|` character
+The shell will otherwise interpret any `|` as shell pipe operators causing syntax errors in FSI.
 
 ### 2. Add Code to Collaborative Script
 Simultaneously append the same code to the scratch.fsx file using the Edit tool. **IMPORTANT: Remove the `;;` when adding to .fsx files** - they are only needed for FSI interactive execution, not script files. Do NOT add any comments indicating who wrote what - we work synergistically together.
@@ -34,6 +38,9 @@ curl -X POST 'http://G1SGSG3.mshome.net:8080/send?source=claude' -d $'let result
 
 # 2. For code with pipe operators:
 curl -X POST 'http://G1SGSG3.mshome.net:8080/send?source=claude' -d $'[1;2;3] \u007C> List.map (fun x -> x * 2);;'
+
+# 3. For pattern matching with pipes:
+curl -X POST 'http://G1SGSG3.mshome.net:8080/send?source=claude' -d $'match x with \u007C 1 \u007C 2 -> "small" \u007C _ -> "large";;'
 
 # 3. Add to collaborative script (WITHOUT ;; and no attribution comments)
 Edit scratch.fsx to append: let result = 42 * 2
