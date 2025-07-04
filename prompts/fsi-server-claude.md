@@ -23,8 +23,8 @@ Note: Include `;;` for FSI execution.
 ### 2. Add Code to Collaborative Script
 Simultaneously append the same code to the scratch.fsx file using the Edit tool. **IMPORTANT: Remove the `;;` when adding to .fsx files** - they are only needed for FSI interactive execution, not script files. Do NOT add any comments indicating who wrote what - we work synergistically together.
 
-### 3. Silent Execution
-Work silently. Do not report results unless specifically asked. The user sees all FSI output in their own session.
+### 3. Validate Execution
+**CRITICAL**: After sending code to FSI, ALWAYS check the FSI session log for errors before reporting completion. Use `tail -n 20 /mnt/c/tmp/fsi-session.log` to verify the code executed successfully. If there are compilation errors, runtime errors, or any failures, ALERT the user immediately with "ALERT: We have a problem!" and describe the specific error. NEVER report work as "done" or "complete" if there are any errors in the log.
 
 ## Example Execution Pattern
 
