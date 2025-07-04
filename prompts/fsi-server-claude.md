@@ -127,11 +127,16 @@ Based on analysis of existing codebase (/mnt/c/projects/advent-of-code-2024), fo
 - **Discriminated union patterns**
 - **failwith for unexpected cases**: `| unknown -> failwith $"unknown %A{unknown}"`
 
-### 5. Collection Processing
-- **List comprehensions**: `[for rn, row in input |> Seq.indexed do ...]`
-- **Higher-order functions**: `List.map`, `List.filter`, `List.collect`, `List.fold`
-- **Functional transformations**: Avoid mutable state
-- **Immutable data structures**: `List`, `Set`, `Map`
+### 5. Collection Processing - PURE FUNCTIONAL STYLE
+- **NEVER use `for` loops** - use collection functions instead
+- **Higher-order functions**: `List.map`, `List.filter`, `List.collect`, `List.fold`, `List.mapi`, `List.choose`
+- **Pipeline transformations**: Chain operations with `|>`
+- **Immutable data structures**: `List`, `Set`, `Map`, `Array` (but prefer List)
+- **Functional patterns**:
+  - Use `List.fold` for accumulation instead of mutable counters
+  - Use `List.filter` instead of conditional accumulation
+  - Use `List.choose` for map filter combinations
+  - Use `List.mapi` when you need index access
 
 ### 6. Type Usage
 - **Type aliases**: `type Location = int * int`
@@ -141,8 +146,10 @@ Based on analysis of existing codebase (/mnt/c/projects/advent-of-code-2024), fo
 ### 7. Code Organization
 - **4-space indentation**
 - **Functional-first approach** with immutable data
+- **NEVER use `mutable` keyword** - forbidden in all code unless explicitly asked for by the user
 - **Small, focused, composable functions**
 - **Type safety with custom types**
+- **Modern string interpolation**: Use `$"text {expression}"` instead of `sprintf` or `printfn "text %d" value`
 
 ## Testing Patterns and Approaches
 
