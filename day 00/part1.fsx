@@ -2,7 +2,7 @@
 open Swensen.Unquote
 
 let input =
-    System.IO.File.ReadAllLines $"""{__SOURCE_DIRECTORY__}\input.txt"""
+    System.IO.File.ReadAllLines "day 00/input.txt"
     |> List.ofSeq
 
 let example =
