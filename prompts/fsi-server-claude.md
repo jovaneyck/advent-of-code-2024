@@ -18,8 +18,18 @@ The FSI server endpoints:
 
 When executing F# code, follow this dual-action workflow:
 
-### 1. Add Code to Collaborative Script
-Simultaneously append the same code to the scratch.fsx file using the Edit tool. **IMPORTANT: Remove the `;;` when adding to .fsx files** - they are only needed for FSI interactive execution, not script files. Do NOT add any comments indicating who wrote what - we work synergistically together.
+### 1. Add Code to Collaborative Script **FIRST**
+**CRITICAL WORKFLOW**: ALWAYS add code to the .fsx file FIRST using the Edit tool, THEN send to FSI. This maintains the collaborative script as the authoritative source.
+
+**For major code changes** (new functions, substantial rewrites, debugging functions):
+1. **FIRST**: Add to .fsx file using Edit tool
+2. **THEN**: Send to FSI for testing
+3. **Remove `;;`** when adding to .fsx files - only needed for FSI execution
+
+**For minor troubleshooting** (quick tests, single expressions):
+- OK to send directly to FSI without updating .fsx
+
+**NEVER** develop substantial code only in FSI - the .fsx file is our collaborative workspace and must stay current.
 
 ### 2. Send Code to FSI
 ```bash
