@@ -35,17 +35,31 @@ let parseGrid lines =
 let inBounds (maxR, maxC) (r, c) =
     r >= 0 && r <= maxR && c >= 0 && c <= maxC
 
+let findAntinodesOnLine bounds (r1,c1) (r2,c2) =
+    let dr = r2 - r1
+    let dc = c2 - c1
+    
+    let rec extend direction (r,c) acc =
+        let nr = r + direction * dr
+        let nc = c + direction * dc
+        if inBounds bounds (nr, nc) then
+            extend direction (nr, nc) ((nr, nc) :: acc)
+        else acc
+    
+    let forward = extend 1 (r1,c1) [(r1,c1); (r2,c2)]
+    let backward = extend (-1) (r1,c1) []
+    forward @ backward
+
 let findAntinodes bounds antennas =
     antennas
     |> List.collect (fun (freq, coords) ->
-        coords
-        |> List.allPairs coords
-        |> List.filter (fun (a, b) -> a <> b)
-        |> List.map (fun ((r1,c1), (r2,c2)) ->
-            let dr = r2 - r1
-            let dc = c2 - c1
-            (r2 + dr, c2 + dc))
-        |> List.filter (inBounds bounds))
+        if List.length coords < 2 then []
+        else
+            coords
+            |> List.allPairs coords
+            |> List.filter (fun (a, b) -> a <> b)
+            |> List.collect (fun (a, b) -> findAntinodesOnLine bounds a b)
+            |> List.distinct)
     |> Set.ofList
 
 let solve lines =
@@ -60,10 +74,10 @@ let solve lines =
 
 let run () =
     printf "Testing.."
-    test <@ solve example = 14 @>
+    test <@ solve example = 34 @>
     test <@ solve input |> fun x -> x > 0 @>
     printfn "...done!"
     
-    printfn $"Part 1: {solve input}"
+    printfn $"Part 2: {solve input}"
 
 run ()
