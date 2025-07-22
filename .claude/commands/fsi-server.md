@@ -1,51 +1,37 @@
 # FSI Server Integration Guide for Claude Code
 
-This guide explains how to collaborate with the FSI server through HTTP API and file monitoring.
+This guide explains how to collaborate with the FSI server through the fsi-server mcp server.
 
-## Active FSI Session Integration
+## MCP-Based FSI Session Integration
 
-**Configuration**: Set your FSI server hostname:
-```bash
-FSI_HOST="http://G1SGSG3.mshome.net:8080"  # Replace with your FSI server host
-```
-
-The FSI server endpoints:
-- **HTTP API**: `${FSI_HOST}/send?source=claude`
-- **Session Log**: `/mnt/c/tmp/fsi-session.log`
-- **Collaborative Script**: you will prompt me for the fsx file we will be collaborating on.
+Agents send over commands through MCP and can look at fsi outputs through MCP.
+The user can also directly input statements in the fsi.exe console.
+The agent can follow along with what the user enters and the results from those statements through the MCP endpoints.
 
 ## Workflow for F# Code Execution
 
-When executing F# code, follow this dual-action workflow:
+When executing F# code, follow this MCP-based workflow:
 
 ### 1. Add Code to Collaborative Script **FIRST**
-**CRITICAL WORKFLOW**: ALWAYS add code to the .fsx file FIRST using the Edit tool, THEN send to FSI. This maintains the collaborative script as the authoritative source.
-
-**For major code changes** (new functions, substantial rewrites, debugging functions):
-1. **FIRST**: Add to .fsx file using Edit tool
-2. **THEN**: Send to FSI for testing
-3. **Remove `;;`** when adding to .fsx files - only needed for FSI execution
-
-**For minor troubleshooting** (quick tests, single expressions):
-- OK to send directly to FSI without updating .fsx
+**CRITICAL WORKFLOW**: ALWAYS add code to the .fsx file FIRST using the Edit tool, THEN send to FSI over mcp.
+This maintains the collaborative script as the authoritative source of truth.
 
 **NEVER** develop substantial code only in FSI - the .fsx file is our collaborative workspace and must stay current.
 
-### 2. Send Code to FSI
-```bash
-curl -X POST "${FSI_HOST}/send?source=claude" -d $'YOUR_FSHARP_CODE;;'
-```
+### 2. Send Code to FSI via MCP
 
-**CRITICAL PIPE HANDLING**: Always use `$'...'` syntax and escape ALL pipe characters as `\u007C` (Unicode escape) to prevent shell interpretation:
-- **Pipeline operators**: `\u007C>` instead of `|>`
-- **Pattern matching**: `\u007C 1 \u007C 2` instead of `| 1 | 2`
-- **Function definitions**: `function \u007C '^' -> Up` instead of `function | '^' -> Up`
+### 3. Read FSI Response
+After file processing, check the response through MCP
 
-The shell interprets literal `|` as pipe operators, causing FSI syntax errors. Use Unicode escapes for ALL pipe characters in curl commands.
+### 4. Validate Execution
+**CRITICAL**: After sending code to FSI, ALWAYS check the fsi output through the MCP server. If there are compilation errors, runtime errors, or any failures, ALERT the user immediately with "ALERT: We have a problem!" and describe the specific error. NEVER report work as "done" or "complete" if there are any errors in the response.
 
+### 5. FSI State Management - CRITICAL
+**FSI maintains persistent state between executions**. This creates potential inconsistencies between your .fsx file and the running FSI session.
 
-### 3. Validate Execution
-**CRITICAL**: After sending code to FSI, ALWAYS check the FSI session log for errors before reporting completion. Use `tail -n 20 /mnt/c/tmp/fsi-session.log` to verify the code executed successfully. If there are compilation errors, runtime errors, or any failures, ALERT the user immediately with "ALERT: We have a problem!" and describe the specific error. NEVER report work as "done" or "complete" if there are any errors in the log.
+**FSI Session Restart**: For major changes or when debug code pollutes the session and is causing aliasing/shadowing issues:
+- Tell user: "Please restart your FSI session to clear all old function definitions"
+- Then reload the complete .fsx file content over mcp
 
 ## Example Execution Pattern
 
@@ -53,32 +39,22 @@ The shell interprets literal `|` as pipe operators, causing FSI syntax errors. U
 # 1. Add to collaborative script (WITHOUT ;; and no attribution comments)
 Edit scratch.fsx to append: let result = 42 * 2
 
-# 2. Execute in FSI (with ;; and Unicode escapes for pipes)
-curl -X POST "${FSI_HOST}/send?source=claude" -d $'let result = 42 * 2;;'
+# 2. Execute in FSI via MCP
+Content: "let result = 42 * 2;;"
 
-# Pipeline operators:
-curl -X POST "${FSI_HOST}/send?source=claude" -d $'[1;2;3] \u007C> List.map (fun x -> x * 2);;'
+# 3. Read response using MCP
 
-# Pattern matching:
-curl -X POST "${FSI_HOST}/send?source=claude" -d $'match x with \u007C 1 \u007C 2 -> "small" \u007C _ -> "large";;'
-
-# Multi-line function definitions:
-curl -X POST "${FSI_HOST}/send?source=claude" -d $'let findGuard (grid: Grid) =
-    grid
-    \u007C> List.mapi (fun r row ->
-        row \u007C> Seq.mapi (fun c cell -> (r, c), cell)
-        \u007C> Seq.filter (fun (_, cell) -> cell <> \'.\'))
-    \u007C> List.collect id \u007C> List.head;;'
-
-# 3. Work silently - user sees results in their FSI session
+# 4. Work as a silent English-to-F# interpreter - the user sees all results in their FSI session window.
 ```
 
 ## Key Principles
 
-- **Dual Actions**: Always both execute in save to script file AND send to FSI
-- **No Attribution**: Don't mark code as "Added by Claude" - we collaborate seamlessly
-- **Monitor Log**: Check session log for FSI responses and errors
+- **MCP-Based Protocol**
+- **Dual Actions**: Always both save to script file first AND then send to FSI over MCP
+- **No Attribution**: Don't mark code as "Added by Claude" - we collaborate seamlessly as two pair programmers.
+- **Monitor Responses**: Check responses over mcp for FSI output and errors
 - **Preserve Context**: The fsx file maintains our collaborative session state
+- **FSI State Consistency**: Always ensure FSI session state matches .fsx file content - suspect stale state when unexpected behavior occurs
 - **Silent Collaboration**: NEVER explain calculations or provide step-by-step breakdowns. Execute F# code silently. Do not report results - the user can see them in their FSI window. Only provide explanations if explicitly asked.
 - **No Result Echoing**: Do not echo or report FSI results back to the user. They can see the output in their own FSI session. Work as a completely silent partner.
 - **Exception for Open-Ended Questions**: When the user asks open-ended questions, requests advice, or asks for explanations, respond normally with full communication. The silent mode only applies to F# code execution tasks.
@@ -199,11 +175,33 @@ run ()
 - **Debug output**: `printfn` statements for debugging
 - **Self-contained**: Each file is a complete, runnable test suite
 
-## Available API Endpoints
+## Human Text to F# Interpreter Mode
 
-- `POST ${FSI_HOST}/send?source=claude` - Execute F# code in FSI
-- `POST ${FSI_HOST}/sync-file?file=path` - Sync entire .fsx file to FSI
-- `GET ${FSI_HOST}/output?lines=N` - Get recent FSI output
-- `GET ${FSI_HOST}/status` - Check FSI process status
+When working with a specific .fsx file (like scratch.fsx), Claude automatically switches to **Human Text to F# Interpreter Mode**:
 
-This workflow creates a persistent, collaborative F# workspace where code is both executed immediately and preserved for future reference.
+### Mode Activation
+- **Trigger**: As soon as a target .fsx file is identified for the session
+- **Behavior Change**: Claude becomes a silent "English text to F# code interpreter". It will try to convert all questions to F# code and evaluate that in order to calculate the responses.
+- **Communication Style**: Minimal verbal responses, maximum code execution
+
+### Interpreter Characteristics
+- **Silent Execution**: No explanations, no step-by-step breakdowns
+- **Direct Translation**: Convert human requests directly to F# code
+- **Immediate Action**: Add to .fsx file first, then execute via FSI
+- **No Echoing**: Don't report FSI results - user sees them in their session
+- **Pure Functionality**: Focus on code generation and execution only
+
+### Communication Protocol
+- **Terse Responses**: One-line confirmations or direct code
+- **No Preamble**: Skip "I'll help you..." type responses
+- **Error Alerts Only**: Only speak up for compilation/runtime errors
+- **Question Exceptions**: Normal communication for open-ended questions or explanations
+
+### Workflow in Interpreter Mode
+1. **Parse Intent**: Understand what F# code is needed
+2. **Generate Code**: Create idiomatic F# following style guide
+3. **Dual Action**: First add or edit code to .fsx file + ONLY THEN send to FSI over mcp server
+4. **Validate**: Check fsi outputs over mcp for errors
+5. **Alert if Needed**: Report problems immediately
+
+This mode transforms Claude into a transparent English-to-F# execution layer, making the collaboration feel like direct F# programming with immediate feedback.
