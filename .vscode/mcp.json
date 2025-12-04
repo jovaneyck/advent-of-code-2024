@@ -1,0 +1,9 @@
+{
+	"servers": {
+		"fsi-mcp": {
+			"url": "http://localhost:5020/sse",
+			"type": "http"
+		}
+	},
+	"inputs": []
+}
